@@ -1,6 +1,7 @@
-# lib/employee.py
 from __init__ import CURSOR, CONN
 from department import Department
+
+import sqlite3
 
 class Employee:
 
@@ -161,15 +162,11 @@ class Employee:
 
         return [cls.instance_from_db(row) for row in rows]
 
+   
     @classmethod
     def find_by_id(cls, id):
-        """Return Employee object corresponding to the table row matching the specified primary key"""
-        sql = """
-            SELECT *
-            FROM employees
-            WHERE id = ?
-        """
-
+        """Find an employee by ID."""
+        sql = "SELECT * FROM employees WHERE id = ?"
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
 
@@ -185,6 +182,8 @@ class Employee:
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
 
+   # Inside your 'reviews' method
     def reviews(self):
-        """Return list of reviews associated with current employee"""
-        pass
+        from review import Review  # Delay the import to avoid circular import
+        rows = CURSOR.execute("SELECT * FROM reviews WHERE employee_id = ?", [self.id]).fetchall()
+        return [Review.instance_from_db(row) for row in rows]

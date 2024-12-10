@@ -178,3 +178,10 @@ class Department:
         return [
             Employee.instance_from_db(row) for row in rows
         ]
+    
+    def reviews(self):
+        """Get reviews for this employee."""
+        from review import Review  # Import here to avoid circular import issues
+        sql = "SELECT * FROM reviews WHERE employee_id = ?"
+        rows = CURSOR.execute(sql, (self.id,)).fetchall()
+        return [Review.instance_from_db(row) for row in rows]
